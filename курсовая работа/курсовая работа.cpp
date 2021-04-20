@@ -19,4 +19,5 @@ class student
 int main()
 {
 	cout << "go to work bitch" << endl;
+	cout << "you suck man" << endl;
 }
