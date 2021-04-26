@@ -153,7 +153,7 @@ struct date
 	int* month = NULL;
 	int* year = NULL;
 };
-class student
+class student: public input_output
 {
 
 	private:
@@ -206,13 +206,25 @@ class student
 		}
 		 void set_name()
 		{
-			 cout << "Введите имя студента: ";
+			 cout << "\nВведите имя студента: ";
 			 cin >> fio.name;
+			 cin_clear();
 		}
+		 void set_second_name()
+		 {
+			 cout << "\nВведите фамилию студента: ";
+			 cin >> fio.second_name;
+			 cin_clear();
+		 }
 		 void set_middle_name()
 		 {
-			 cout << "Введите фамилию студента: ";
-			 cin >> fio.second_name;
+			 cout << "\nВведите отчество студента: ";
+			 cin >> fio.middle_name;
+			 cin_clear();
+		 }
+		 void set_incoming_year()
+		 {
+			 cout << "Введите год поступления"
 		 }
 		
 
