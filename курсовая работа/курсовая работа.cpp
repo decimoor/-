@@ -133,6 +133,38 @@ public:
 		}
 	}
 
+	bool is_int_string(string number)
+	{
+		for (int i = 0; i < number.length(); i++)
+		{
+			if (!isdigit(number[i]))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	bool check_date(string date)
+	{
+		if (isdigit(date[0]) and isdigit(date[1]) and date[3] == '.' and isdigit(date[4]) and isdigit(date[5]) and date[6] == '.' and isdigit(date[7]) and isdigit(date[8]) and isdigit(date[9]) and isdigit(date[10]))
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	bool is_string_string(char str[])
+	{
+		for (int i = 0; i < sizeof(str); i++)
+		{
+			if (isdigit(str[i]))
+				return false;
+		}
+		return true;
+	}
+
 	
 };
 
@@ -202,8 +234,18 @@ class student: public input_output
 		}
 		void set_all()
 		{
-			
+			set_name();
+			set_second_name();
+			set_middle_name();
+			set_bday();
+			set_incoming_year();
+			set_faculty();
+			set_kafedra();
+			set_group();
+			set_record_book();
 		}
+
+		//все сэттеры
 		 void set_name()
 		{
 			 cout << "\nВведите имя студента: ";
@@ -224,9 +266,121 @@ class student: public input_output
 		 }
 		 void set_incoming_year()
 		 {
-			 cout << "Введите год поступления"
+			 cout << "\nВведите год поступления: ";
+			 *incoming_year = protection_incoming_year();
+			 cin_clear();
 		 }
-		
+		 void set_bday()
+		 {
+			 string date;
+			 int day;
+			 int month;
+			 int year = 0;
+			 while (true)
+			 {
+				cout << "\nВведите год рождения в формате {дд.мм.гггг}: ";
+				cin >> date;
+				if (check_date(date))
+				{
+					day = (static_cast<int>(date[0]) - 48) * 10 + static_cast<int>(date[1]) - 48;
+					month = (static_cast<int>(date[3]) - 48) * 10 + static_cast<int>(date[4]) - 48;
+					for (int i = 6, ten = 1000; i < 10; i++)
+					{
+						year += (static_cast<int>(date[i]) - 48) * ten;
+						ten /= 10;
+					}
+					if (check_date(day, month, year))
+					{
+						*bday.day = day;
+						*bday.month = month;
+						*bday.year = year;
+						break;
+						
+					}
+				}
+				else
+				{
+					cout << "\nДанные введены неправильно";
+				}
+				cin_clear();
+			 }
+		 }
+
+		 void set_record_book()
+		 {
+			 string rec_book;
+			 int ten;
+			 while (true)
+			 {
+				 cout << "\nВведите номер зачетное книжки студента: ";
+				 cin >> rec_book;
+				 ten = pow(10, rec_book.length() - 1);
+				 if (is_int_string(rec_book))
+				 {
+					 for (int i = 0; i < rec_book.length(); i++)
+					 {
+						 record_book += (static_cast<int>(rec_book[i]) - 48) * ten;
+						 ten /= 10;
+					 }
+					 break;
+				 }
+				 else
+				 {
+					 cout << "\nВ номере зачетной книжки не может быть чисел";
+				 }
+
+			 }
+		 }
+		 
+		 void set_sex()
+		 {
+			 *sex = protection_sex();
+		 }
+
+		 void set_faculty()
+		 {
+			 while (true)
+			 {
+				 cout << "\nВведите факультет студента: ";
+				 char fac[FACULTY_SIZE];
+				 cin >> fac;
+				 if (is_string_string(fac))
+				 {
+					 faculty = fac;
+					 break;
+				 }
+				 else
+				 {
+					 cout << "\nНазвание факультета введено некорректно";
+				 }
+			 }
+		 }
+		 void set_group()
+		 {
+			 cout << "\nВведите название группы: ";
+			 cin >> group;
+
+		 }
+
+		 void set_kafedra()
+		 {
+			 while (true)
+			 {
+				 cout << "\nВведите кафедру студента: ";
+				 char kaf[FACULTY_SIZE];
+				 cin >> kaf;
+				 if (is_string_string(kaf))
+				 {
+					 kafedra = kaf;
+					 break;
+				 }
+				 else
+				 {
+					 cout << "\nНазвание кафедры введено некорректно";
+				 }
+			 }
+		 }
+
 
 
 
