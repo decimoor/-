@@ -362,6 +362,11 @@ class student: public input_output
 
 		 }
 
+		 void say_sasha()
+		 {
+			 cout << "Я Саша!";
+		 }
+
 		 void set_kafedra()
 		 {
 			 while (true)
