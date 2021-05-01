@@ -181,9 +181,9 @@ struct FIO
 
 struct date
 {
-	int* day = NULL;
-	int* month = NULL;
-	int* year = NULL;
+	int* day = NULL; //25
+	int* month = NULL; //07
+	int* year = NULL; //2002
 };
 class student: public input_output
 {
@@ -360,11 +360,6 @@ class student: public input_output
 			 cout << "\nВведите название группы: ";
 			 cin >> group;
 
-		 }
-
-		 void say_sasha()
-		 {
-			 cout << "Я Саша!";
 		 }
 
 		 void set_kafedra()
