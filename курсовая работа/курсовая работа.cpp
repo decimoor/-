@@ -5,12 +5,17 @@
 #include <fstream>
 #include <windows.h>
 #include <ctime>
+#include <iomanip>
+#include <clocale>
 #define _CRT_SECURE_NO_WARNINGS
 using namespace std;
 #define LINE_LENGTH 140;
-#define head1 "|              Фамилия              |                Имя                |             Отчество              | Дата рождения |      Пол      |\n"
-#define head2 "|           Год поступления         |             Факультет             |             Кафедра               | Номер зачетной книжки         |\n"
-#define line cout << " "; for (int j = 0; j < LINE_LENGTH; j++) cout <<"_"; cout <<endl; 
+#define head1 "|              Фамилия              |                Имя                |             Отчество              | Дата рождения |  Пол  |\n"
+#define head2 "|           Год поступления         |             Факультет             |             Кафедра               |      Номер зачетной книжки         |\n"
+const int BLOCK_SIZE = 36;
+const int  DATE_SIZE =  15;
+const int SEX_SIZE =  7;
+#define line cout << " --------------------------------------------------------------------------------------------------------------------------------------------\n"
 struct sub
 {
 	char* name = new char[21]; //математика
@@ -35,13 +40,6 @@ public:
 	}
 
 	//далее идут методы, которые проверяют правильность введенных данных
-	inline void Wait() {
-		char temp[2];
-		show("Нажмите ввод для продолжения...");
-		cin_clear();
-		cin.get(temp, 2);
-		cin_clear();
-	}
 
 	bool check_date(int day, int month, int year)
 	{
@@ -95,6 +93,7 @@ public:
 		int number = 0;
 		while (true)
 		{
+			show("Введите год постулпения: ");
 			cin >> year;
 			if (isdigit(year[0]) and isdigit(year[1]) and isdigit(year[2]) and isdigit(year[3]))
 			{
@@ -109,7 +108,6 @@ public:
 			}
 			show("Год - число целого типа\n");
 			cin_ignore();
-			Wait();
 		}
 	}
 
@@ -147,7 +145,7 @@ public:
 
 	bool check_date(string date)
 	{
-		if (isdigit(date[0]) and isdigit(date[1]) and date[3] == '.' and isdigit(date[4]) and isdigit(date[5]) and date[6] == '.' and isdigit(date[7]) and isdigit(date[8]) and isdigit(date[9]) and isdigit(date[10]))
+		if (isdigit(date[0]) and isdigit(date[1]) and date[2] == '.' and isdigit(date[3]) and isdigit(date[4]) and date[5] == '.' and isdigit(date[6]) and isdigit(date[7]) and isdigit(date[8]) and isdigit(date[9]) and date.length() == 10)
 		{
 			return true;
 		}
@@ -157,13 +155,26 @@ public:
 
 	bool is_string_string(char str[])
 	{
-		for (int i = 0; i < sizeof(str); i++)
+		for (int i = 0; str[i] != '\0'; i++)
 		{
 			if (isdigit(str[i]))
 				return false;
 		}
 		return true;
 	}
+
+	int string_to_int(string number)
+	{
+		int number1 = 0;
+		int ten = pow(10, number.length() - 1);
+		for (int i = 0; i < number.length(); i++)
+		{
+			number1 = (static_cast<int>(number[i] )-42)* ten;
+			ten /= 10;
+		}
+		return number1;
+	}
+
 
 	
 };
@@ -245,28 +256,73 @@ class student: public input_output
 			set_record_book();
 		}
 
+		//функция, показывающая информацию о студенте
+		void show_all()
+		{
+			cout << head1 << endl;
+			cout << "   " << setw(BLOCK_SIZE) << left << fio.second_name << setw(BLOCK_SIZE) << fio.name << left << setw(BLOCK_SIZE) << left << fio.middle_name << *bday.day << "." << *bday.month << "." << *bday.year << "       " << *sex << endl;
+			line;
+			cout << head2 << endl << endl;
+			cout <<"  " <<  setw(BLOCK_SIZE) << left << *incoming_year << setw(BLOCK_SIZE) << left << faculty << setw(BLOCK_SIZE) << left << kafedra << setw(BLOCK_SIZE) << left << record_book << endl;
+		}
+
 		//все сэттеры
 		 void set_name()
 		{
-			 cout << "\nВведите имя студента: ";
-			 cin >> fio.name;
-			 cin_clear();
+			 
+			 while (true)
+			 {
+				 cout << "\nВведите имя студента: ";
+				 cin >> fio.name;
+				 if (is_string_string(fio.name))
+				 {
+					 break;
+				 }
+				 else
+				 {
+					 cout << "\nВ имени студента не может быть цифр, попробуйте заново";
+					 cin_clear();
+				 }
+			 }
 		}
 		 void set_second_name()
 		 {
-			 cout << "\nВведите фамилию студента: ";
-			 cin >> fio.second_name;
-			 cin_clear();
+			 
+			 while (true)
+			 {
+				 cout << "\nВведите фамилию студента: ";
+				 cin >> fio.second_name;
+				 if (is_string_string(fio.second_name))
+				 {
+					 break;
+				 }
+				 else
+				 {
+					 cout << "\nВ фамилии студента не может быть цифр, попробуйте заново";
+					 cin_clear();
+				 }
+			 }
 		 }
 		 void set_middle_name()
 		 {
-			 cout << "\nВведите отчество студента: ";
-			 cin >> fio.middle_name;
-			 cin_clear();
+			 
+			 while (true)
+			 {
+				 cout << "\nВведите отчество студента: ";
+				 cin >> fio.middle_name;
+				 if (is_string_string(fio.middle_name))
+				 {
+					 break;
+				 }
+				 else
+				 {
+					 cout << "\nВ отчестве студента не может быть цифр, попробуйте заново";
+					 cin_clear();
+				 }
+			 }
 		 }
 		 void set_incoming_year()
 		 {
-			 cout << "\nВведите год поступления: ";
 			 *incoming_year = protection_incoming_year();
 			 cin_clear();
 		 }
@@ -284,6 +340,7 @@ class student: public input_output
 				{
 					day = (static_cast<int>(date[0]) - 48) * 10 + static_cast<int>(date[1]) - 48;
 					month = (static_cast<int>(date[3]) - 48) * 10 + static_cast<int>(date[4]) - 48;
+					year = 0;
 					for (int i = 6, ten = 1000; i < 10; i++)
 					{
 						year += (static_cast<int>(date[i]) - 48) * ten;
@@ -319,14 +376,14 @@ class student: public input_output
 				 {
 					 for (int i = 0; i < rec_book.length(); i++)
 					 {
-						 record_book += (static_cast<int>(rec_book[i]) - 48) * ten;
-						 ten /= 10;
+						 *(record_book + i) = rec_book[i];
 					 }
+					 *(record_book + rec_book.length()) = '\0';
 					 break;
 				 }
 				 else
 				 {
-					 cout << "\nВ номере зачетной книжки не может быть чисел";
+					 cout << "\nВ номере зачетной книжки не может быть букв";
 				 }
 
 			 }
@@ -341,13 +398,17 @@ class student: public input_output
 		 {
 			 while (true)
 			 {
+				 char* tmp = faculty;
 				 cout << "\nВведите факультет студента: ";
-				 char fac[FACULTY_SIZE];
+				 char* fac = new char[FACULTY_SIZE];
 				 cin >> fac;
 				 if (is_string_string(fac))
 				 {
+
 					 faculty = fac;
+					 free(tmp);
 					 break;
+
 				 }
 				 else
 				 {
@@ -359,34 +420,51 @@ class student: public input_output
 		 {
 			 cout << "\nВведите название группы: ";
 			 cin >> group;
+			 cin_clear();
 
 		 }
 
 		 void set_kafedra()
-		 {
-			 while (true)
-			 {
-				 cout << "\nВведите кафедру студента: ";
-				 char kaf[FACULTY_SIZE];
-				 cin >> kaf;
-				 if (is_string_string(kaf))
-				 {
-					 kafedra = kaf;
-					 break;
-				 }
-				 else
-				 {
-					 cout << "\nНазвание кафедры введено некорректно";
-				 }
-			 }
+		 { 
+			cout << "\nВведите кафедру студента: ";
+			char* kaf = new char[KAFEDRA_SIZE];
+			cin >> kaf;
+			kafedra = kaf;
+				 
 		 }
+
+		 //все гэттеры
+		 
+
+
 
 
 
 
 };
 
+class menu
+{
+private:
+	string add_student = "[1] - Добавить студента: ";
+	string show_student = "[2] - Вывести всех студентов: ";
+	string delete_student = "[3] - Удалить студента: ";
+	string find_student = "[4] - Найти студента по ФИО: ";
+	string sort = "[5] - Сортировка: ";
+	string exit = "[6] - Выйти из программы: ";
+
+public:
+	
+};
+
 int main()
 {
+	SetConsoleCP(1251); //дичь, чтобы буквы адекватно выводились
+	SetConsoleOutputCP(1251);
+	setlocale(LC_ALL, "Rus");
+
+	student s1;
+	s1.set_all();
+	s1.show_all();
 
 }
