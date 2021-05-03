@@ -15,11 +15,13 @@ using namespace std;
 const int BLOCK_SIZE = 36;
 const int  DATE_SIZE =  15;
 const int SEX_SIZE =  7;
+const int NUMBER_OF_SUBJECTS = 9;
+const int NUMBER_OF_SESSIONS = 10;
 #define line cout << " --------------------------------------------------------------------------------------------------------------------------------------------\n"
 struct sub
 {
-	char* name = new char[21]; //математика
-	int* mark = new int; //пять
+	string name; //математика
+	int mark; //пять
 };
 
 class input_output
@@ -116,6 +118,7 @@ public:
 		char gender;
 		while (true)
 		{
+			show("Укажите пол студента: ");
 			cin >> gender;
 			if (gender == 'М' or gender == 'Ж')
 			{
@@ -162,6 +165,15 @@ public:
 		}
 		return true;
 	}
+	bool is_string_string(string str)
+	{
+		for (int i = 0; i < str.length(); i++)
+		{
+			if (isdigit(str[i]))
+				return false;
+		}
+		return true;
+	}
 
 	int string_to_int(string number)
 	{
@@ -169,7 +181,7 @@ public:
 		int ten = pow(10, number.length() - 1);
 		for (int i = 0; i < number.length(); i++)
 		{
-			number1 = (static_cast<int>(number[i] )-42)* ten;
+			number1 = (static_cast<int>(number[i] )-48)* ten;
 			ten /= 10;
 		}
 		return number1;
@@ -179,7 +191,85 @@ public:
 	
 };
 
-	 
+class session
+{
+protected:
+	sub exams[NUMBER_OF_SESSIONS][NUMBER_OF_SUBJECTS];
+
+public:
+	int get_mark(int number_of_session, string subject)
+	{
+		for (int i = 0; i < NUMBER_OF_SUBJECTS; i++)
+		{
+			if (exams[number_of_session][i].name == subject)
+			{
+				return exams[number_of_session][i].mark;
+			}
+		}
+		cout << "\nДанный студент не сдавал этот экзамен в этом семестре";
+	}
+
+	void set_mark(int mark, int number_of_session, string subject)
+	{
+		for (int i = 0; i < NUMBER_OF_SUBJECTS; i++)
+		{
+			if (exams[number_of_session - 1][i].name == subject)
+			{
+				exams[number_of_session - 1][i].mark = mark;
+			}
+
+		}
+	}
+
+	void set_subject(int number_of_session, string subject)
+	{
+		int i = 0;
+		for (int i = 0; i < NUMBER_OF_SUBJECTS; i++)
+		{
+			if (exams[number_of_session - 1][i].name == "unknown")
+			{
+				exams[number_of_session - 1][i].name = subject;
+				break;
+			}
+		}
+
+
+	}
+
+	void show_all()
+	{
+		for (int i = 0; exams[i][0].name != "unknown"; i++)
+		{
+			cout << "\n| Семестр: " << i + 1;
+			for (int j = 0; exams[i][j].name != "unknown"; j++)
+			{
+				cout << "| " << setw(35) << left << exams[i][j].name;
+			}
+			cout << "|" << endl << "            ";
+			for (int j = 0; exams[i][j].name != "unknown"; j++)
+			{
+				cout << "| " << setw(35) << left << exams[i][j].mark;
+			}
+			cout << "|" <<  endl;
+			line;
+		}
+
+
+	}
+
+	//конструктор инициализирует поле name unknown
+	session()
+	{
+		for (int i = 0; i < NUMBER_OF_SESSIONS; i++)
+		{
+			for (int j = 0; j < NUMBER_OF_SUBJECTS; j++)
+			{
+				exams[i][j].name = "unknown";
+			}
+		}
+
+	}
+};
 
 
 
@@ -209,6 +299,7 @@ class student: public input_output
 		char* kafedra = NULL;
 		char* group = NULL;
 		char* record_book = NULL;
+		session sessions;
 	public:
 		student() //конструктор инициализирует поля класса различными данными
 		{
@@ -248,12 +339,93 @@ class student: public input_output
 			set_name();
 			set_second_name();
 			set_middle_name();
+			set_sex();
 			set_bday();
 			set_incoming_year();
 			set_faculty();
 			set_kafedra();
 			set_group();
 			set_record_book();
+			set_marks();
+		}
+
+		void set_marks()
+		{
+			string subject;
+			string number_of_sessions;
+			int number_of_sessions2;
+			string mark;
+			int j = 0;
+			while (true)
+			{
+				cout << "\nВведите количество сессий, которые были у студента: ";
+				cin >> number_of_sessions;
+				if (is_int_string(number_of_sessions))
+				{
+					number_of_sessions2 = string_to_int(number_of_sessions);
+					if (number_of_sessions2 <= NUMBER_OF_SESSIONS)
+					{
+						break;
+					}
+					else
+					{
+						cout << "\nКоличество сессий должно быть меньше 9";
+					}
+				}
+				else
+				{
+					cout << "\nВвод неверен, повторите ввод";
+					cin_clear();
+				}
+			}
+
+			for (int i = 0; i < number_of_sessions2; i++)
+			{
+				cout << "\nВвод предметов и оценок для сессии под номером: " << i + 1;
+				for (j = 0; j < NUMBER_OF_SUBJECTS; j++)
+				{
+					cout << "\nВведите название предмета, если ввод закончен напишите N: ";
+					cin >> subject;
+					if (subject == "N")
+					{
+						break;
+					}
+					if (!is_string_string(subject))
+					{
+						cout << "\nНазвание предмета введено неверно, попробуте заново";
+						j--;
+						cin_clear();
+					}
+					else
+					{
+						sessions.set_subject(i+1, subject);
+						while (true)
+						{
+							cout << "\nВведите оценку по этому предмету: ";
+							cin >> mark;
+							if (is_int_string(mark))
+							{
+								if (string_to_int(mark) <= 5 and string_to_int(mark) >= 2)
+								{
+									sessions.set_mark(string_to_int(mark), i+1, subject);
+									break;
+								}
+								else
+								{
+									cout << "\nОценка - число от 2 до 5, попробуйте заново";
+									cin_clear();
+								}
+							}
+							else
+							{
+								cout << "\nОценка введена неверно, попробуйте снова";
+							}
+						}
+					}
+				}
+				
+			}
+
 		}
 
 		//функция, показывающая информацию о студенте
@@ -262,8 +434,9 @@ class student: public input_output
 			cout << head1 << endl;
 			cout << "   " << setw(BLOCK_SIZE) << left << fio.second_name << setw(BLOCK_SIZE) << fio.name << left << setw(BLOCK_SIZE) << left << fio.middle_name << *bday.day << "." << *bday.month << "." << *bday.year << "       " << *sex << endl;
 			line;
-			cout << head2 << endl << endl;
+			cout << head2 << endl;
 			cout <<"  " <<  setw(BLOCK_SIZE) << left << *incoming_year << setw(BLOCK_SIZE) << left << faculty << setw(BLOCK_SIZE) << left << kafedra << setw(BLOCK_SIZE) << left << record_book << endl;
+			sessions.show_all();
 		}
 
 		//все сэттеры
@@ -421,27 +594,19 @@ class student: public input_output
 			 cout << "\nВведите название группы: ";
 			 cin >> group;
 			 cin_clear();
-
 		 }
 
 		 void set_kafedra()
 		 { 
 			cout << "\nВведите кафедру студента: ";
-			char* kaf = new char[KAFEDRA_SIZE];
-			cin >> kaf;
-			kafedra = kaf;
-				 
+			cin >> kafedra;
+			cin_clear();
 		 }
 
 		 //все гэттеры
-		 
-
-
-
-
-
-
 };
+
+
 
 class menu
 {
