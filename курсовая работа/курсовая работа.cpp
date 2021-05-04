@@ -12,16 +12,19 @@ using namespace std;
 #define LINE_LENGTH 140;
 #define head1 "|              Фамилия              |                Имя                |             Отчество              | Дата рождения |  Пол  |\n"
 #define head2 "|           Год поступления         |             Факультет             |             Кафедра               |      Номер зачетной книжки         |\n"
-const int BLOCK_SIZE = 36;
+const int BLOCK_SIZE = 35;
 const int  DATE_SIZE =  15;
 const int SEX_SIZE =  7;
 const int NUMBER_OF_SUBJECTS = 9;
 const int NUMBER_OF_SESSIONS = 10;
+int id = -1;
+int last_student = 0;
+const int NUMBER_OF_STUDENTS = 10;
 #define line cout << " --------------------------------------------------------------------------------------------------------------------------------------------\n"
 struct sub
 {
-	string name; //математика
-	int mark; //пять
+	string name = "unknown"; //математика
+	int mark = 0; //пять
 };
 
 class input_output
@@ -97,7 +100,7 @@ public:
 		{
 			show("Введите год постулпения: ");
 			cin >> year;
-			if (isdigit(year[0]) and isdigit(year[1]) and isdigit(year[2]) and isdigit(year[3]))
+			if (isdigit(year[0]) and isdigit(year[1]) and isdigit(year[2]) and isdigit(year[3]) and year.length() == 4)
 			{
 				cin_ignore();
 				number = (static_cast<int>(year[0]) - 48) * 1000 + (static_cast<int>(year[1]) - 48) * 100 + (static_cast<int>(year[2]) - 48) * 10 + (static_cast<int>(year[3]) - 48);
@@ -136,7 +139,8 @@ public:
 
 	bool is_int_string(string number)
 	{
-		for (int i = 0; i < number.length(); i++)
+		int len = number.length();
+		for (int i = 0; i < len; i++)
 		{
 			if (!isdigit(number[i]))
 			{
@@ -167,7 +171,8 @@ public:
 	}
 	bool is_string_string(string str)
 	{
-		for (int i = 0; i < str.length(); i++)
+		int len = str.length();
+		for (int i = 0; i < len; i++)
 		{
 			if (isdigit(str[i]))
 				return false;
@@ -258,26 +263,15 @@ public:
 	}
 
 	//конструктор инициализирует поле name unknown
-	session()
-	{
-		for (int i = 0; i < NUMBER_OF_SESSIONS; i++)
-		{
-			for (int j = 0; j < NUMBER_OF_SUBJECTS; j++)
-			{
-				exams[i][j].name = "unknown";
-			}
-		}
-
-	}
 };
 
 
 
 struct FIO
 {
-	char* name = NULL; //Рашид
-	char* second_name; //Чотчаев
-	char* middle_name; //Хутович
+	string name; //Рашид
+	string second_name; //Чотчаев
+	string middle_name; //Хутович
 };
 
 struct date
@@ -300,12 +294,10 @@ class student: public input_output
 		char* group = NULL;
 		char* record_book = NULL;
 		session sessions;
+		int student_number;
 	public:
 		student() //конструктор инициализирует поля класса различными данными
 		{
-			fio.name = new char[NAME_SIZE];
-			fio.middle_name = new char[NAME_SIZE];
-			fio.second_name = new char[NAME_SIZE];
 			bday.day = new int;
 			*bday.day = 0;
 			bday.month = new int;
@@ -319,12 +311,10 @@ class student: public input_output
 			kafedra = new char[KAFEDRA_SIZE];
 			group = new char[GROUP_SIZE];
 			record_book = new char[RECORD_GROUP_SIZE];
+			student_number = ++id;
 		}
 		~student() //особождает все поля класса
 		{
-			delete(fio.middle_name);
-			delete(fio.name);
-			delete(fio.second_name);
 			delete(bday.day);
 			delete(bday.month);
 			delete(bday.year);
@@ -347,6 +337,27 @@ class student: public input_output
 			set_group();
 			set_record_book();
 			set_marks();
+		}
+
+		bool is_it_here(FIO f)
+		{
+			if (f.name == fio.name and f.second_name == fio.second_name and f.middle_name == fio.middle_name)
+			{
+				return true;
+			}
+			return false;
+		}
+
+		string full_name()
+		{
+			string full_name = fio.second_name + ", " + fio.name + ", " + fio.middle_name;
+			return full_name;
+		}
+
+		void delete_student()
+		{
+			fio.name = "unknown";
+			last_student--;
 		}
 
 		void set_marks()
@@ -385,7 +396,8 @@ class student: public input_output
 				for (j = 0; j < NUMBER_OF_SUBJECTS; j++)
 				{
 					cout << "\nВведите название предмета, если ввод закончен напишите N: ";
-					cin >> subject;
+					cin.ignore(32767, '\n');
+					getline(cin, subject);
 					if (subject == "N")
 					{
 						break;
@@ -403,11 +415,13 @@ class student: public input_output
 						{
 							cout << "\nВведите оценку по этому предмету: ";
 							cin >> mark;
+							
 							if (is_int_string(mark))
 							{
-								if (string_to_int(mark) <= 5 and string_to_int(mark) >= 2)
+								int one = string_to_int(mark);
+								if (one <= 5 and one >= 2)
 								{
-									sessions.set_mark(string_to_int(mark), i+1, subject);
+									sessions.set_mark(one, i+1, subject);
 									break;
 								}
 								else
@@ -431,11 +445,14 @@ class student: public input_output
 		//функция, показывающая информацию о студенте
 		void show_all()
 		{
+			cout << "Студент: " << student_number << endl;
 			cout << head1 << endl;
-			cout << "   " << setw(BLOCK_SIZE) << left << fio.second_name << setw(BLOCK_SIZE) << fio.name << left << setw(BLOCK_SIZE) << left << fio.middle_name << *bday.day << "." << *bday.month << "." << *bday.year << "       " << *sex << endl;
+			cout << "|" << setw(BLOCK_SIZE) << left << fio.second_name <<"|" <<setw(BLOCK_SIZE) << left << fio.name << "|" << setw(BLOCK_SIZE) << left << fio.middle_name << "|" << *bday.day << "." << *bday.month << "." << *bday.year << "       |" << *sex <<"    |" << endl;
 			line;
 			cout << head2 << endl;
-			cout <<"  " <<  setw(BLOCK_SIZE) << left << *incoming_year << setw(BLOCK_SIZE) << left << faculty << setw(BLOCK_SIZE) << left << kafedra << setw(BLOCK_SIZE) << left << record_book << endl;
+			line;
+			cout <<"|" <<  setw(BLOCK_SIZE) << left << *incoming_year << "|" << setw(BLOCK_SIZE) << left << faculty << "|" << setw(BLOCK_SIZE) << left << kafedra << "|" << setw(BLOCK_SIZE) << left << record_book << endl;
+			line;
 			sessions.show_all();
 		}
 
@@ -547,7 +564,8 @@ class student: public input_output
 				 ten = pow(10, rec_book.length() - 1);
 				 if (is_int_string(rec_book))
 				 {
-					 for (int i = 0; i < rec_book.length(); i++)
+					 int len = rec_book.length();
+					 for (int i = 0; i < len; i++)
 					 {
 						 *(record_book + i) = rec_book[i];
 					 }
@@ -608,17 +626,132 @@ class student: public input_output
 
 
 
-class menu
+class menu: public student
 {
 private:
-	string add_student = "[1] - Добавить студента: ";
-	string show_student = "[2] - Вывести всех студентов: ";
-	string delete_student = "[3] - Удалить студента: ";
-	string find_student = "[4] - Найти студента по ФИО: ";
-	string sort = "[5] - Сортировка: ";
-	string exit = "[6] - Выйти из программы: ";
-
+	string add_student = "\n[1] - Добавить студента: ";
+	string show_student = "\n[2] - Вывести всех студентов: ";
+	string delete_student = "\n[3] - Удалить студента: ";
+	string find_student = "\n[4] - Найти студента по ФИО: ";
+	string sort = "\n[5] - Сортировка: ";
+	string exit = "\n[6] - Выйти из программы: ";
+	student students[NUMBER_OF_STUDENTS];
+	int choose = 0;
+	bool idk = true;
+	string fio;
 public:
+	void main_menu()
+	{
+		while (idk)
+		{
+			choose = show_menu();
+			switch (choose)
+			{
+				case 1:
+					students[last_student++].set_all();
+					break;
+				case 2:
+					for (int i = 0; i < last_student; i++)
+					{
+						students[i].show_all();
+					}
+					break;
+				case 3:
+					delete_student1();
+					break;
+				case 4:
+					//find_student1();
+					break;
+				case 5:
+					//sort(students);
+					break;
+				case 6:
+					idk = true;
+					break;
+			}
+		}
+	}
+
+	
+
+	
+	int show_menu()
+	{
+		string ch;
+		while (true)
+		{
+			cout << "\n[1] - Добавить студента : ";
+			cout << "\n[2] - Вывести всех студентов: ";
+			cout << "\n[3] - Удалить студента: ";
+			cout << "\n[4] - Найти студента по ФИО: ";
+			cout << "\n[5] - Сортировка: ";
+			cout << "\n[6] - Выйти из программы: ";
+			cin >> ch;
+			if (is_int_string(ch))
+			{
+				int one = string_to_int(ch);
+				if (one >= 1 and one <= 6)
+				{
+					return one;
+				}
+				else
+				{
+					cout << "\nТакого вариант не существует, попробуйте заново";
+					Sleep(300);
+				}
+			}
+			else
+			{
+				cout << "\nВы должны ввести число, соотвествующее определенной функции программы";
+				Sleep(300);
+			}
+		}
+	}
+	void delete_student1()
+	{
+		int tmp = 0;
+		if (last_student == 0)
+		{
+			cout << "\nВ базе данных нет ни одного студента";
+		}
+		else
+		{
+			cout << "\nВведите Ф.И.О студента, которого следует удалить из базы данных: ";
+			cin.ignore(32767, '\n');
+			getline(cin, fio);
+			for (int i = 0; i <= last_student; i++)
+			{
+				if (fio == students[i].full_name())
+				{
+					if (i == last_student)
+					{
+						students[i].delete_student();
+						tmp = 1;
+						break;
+
+					}
+					else
+					{
+						for (int j = i; j < last_student; j++)
+						{
+							students[j] = students[j + 1];
+						}
+						students[last_student].delete_student();
+						tmp = 1;
+						break;
+					}
+				}
+			}
+			if (tmp == 0)
+			{
+				cout << "\nДанного студента нет в базе данных";
+			}
+		}
+		
+	}
+
+	
+	
 	
 };
 
@@ -628,8 +761,7 @@ int main()
 	SetConsoleOutputCP(1251);
 	setlocale(LC_ALL, "Rus");
 
-	student s1;
-	s1.set_all();
-	s1.show_all();
+	menu m;
+	m.main_menu();
 
 }
