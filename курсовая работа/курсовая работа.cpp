@@ -118,21 +118,20 @@ public:
 
 	char protection_sex()
 	{
-		char gender;
+		string gender;
 		while (true)
 		{
 			show("Укажите пол студента: ");
 			cin >> gender;
-			if (gender == 'М' or gender == 'Ж')
+			if (gender == "М" or gender == "Ж") 
 			{
 				cin_clear();
-				return gender;
+				return gender[0];
 			}
 			else
 			{
 				cout << "Пол введен неверно, повторите ввод" << endl;
 				cin_clear();
-				protection_sex();
 			}
 		}
 	}
@@ -200,6 +199,7 @@ class session
 {
 protected:
 	sub exams[NUMBER_OF_SESSIONS][NUMBER_OF_SUBJECTS];
+	double middle_mark[NUMBER_OF_SESSIONS];
 
 public:
 	int get_mark(int number_of_session, string subject)
@@ -212,6 +212,42 @@ public:
 			}
 		}
 		cout << "\nДанный студент не сдавал этот экзамен в этом семестре";
+	}
+
+	void set_middle_marks()
+	{
+		int total = 0;
+		int count = 0;
+		for (int i = 0; exams[i][0].name != "unknown"; i++)
+		{
+			for (int j = 0; exams[i][j].name != "unknown"; j++)
+			{
+				count++;
+				total += exams[i][j].mark;
+			}
+			middle_mark[i] = total / count;
+			total = 0;
+			count = 0;
+		}
+	}
+	double get_middle_mark(int number_of_session)
+	{
+		return middle_mark[number_of_session];
+	}
+	double set_middle_mark(int number_of_session)
+	{
+		int i;
+		int total_sum = 0;
+
+		if (exams[number_of_session][0].name == "unknown")
+		{
+			return 0;
+		}
+		for (i = 0; exams[number_of_session][i].name != "unknown"; i++)
+		{
+			total_sum += exams[number_of_session][i].mark;
+		}
+		return total_sum / (i+1);
 	}
 
 	void set_mark(int mark, int number_of_session, string subject)
@@ -295,6 +331,7 @@ class student: public input_output
 		char* record_book = NULL;
 		session sessions;
 		int student_number;
+		double middle_mark[NUMBER_OF_SESSIONS];
 	public:
 		student() //конструктор инициализирует поля класса различными данными
 		{
@@ -337,7 +374,19 @@ class student: public input_output
 			set_group();
 			set_record_book();
 			set_marks();
+			sessions.set_middle_marks();
 		}
+
+		void set_id(int student_num)
+		{
+			student_number = student_num;
+		}
+
+		double get_middle_mark(int number_of_session)
+		{
+			return sessions.get_middle_mark(number_of_session);
+		}
+
 
 		bool is_it_here(FIO f)
 		{
@@ -597,7 +646,10 @@ class student: public input_output
 				 {
 
 					 faculty = fac;
-					 free(tmp);
+					 if (tmp != NULL)
+					 {
+						 free(tmp);
+					 }
 					 break;
 
 				 }
@@ -619,6 +671,11 @@ class student: public input_output
 			cout << "\nВведите кафедру студента: ";
 			cin >> kafedra;
 			cin_clear();
+		 }
+
+		 int get_id()
+		 {
+			 return student_number;
 		 }
 
 		 //все гэттеры
@@ -660,19 +717,64 @@ public:
 					delete_student1();
 					break;
 				case 4:
-					//find_student1();
+					find_student1();
 					break;
 				case 5:
-					//sort(students);
+					cout << "\nВведите номер сессии: ";
+					int number_of_session;
+					cin >> number_of_session;
+					sort1(number_of_session-1);
 					break;
 				case 6:
-					idk = true;
+					idk = false;
 					break;
 			}
 		}
 	}
 
-	
+	void sort1(int number_of_session)
+	{
+		int buff_id;
+		student buff;
+		for (int i = 0; i < last_student; i++)
+		{
+			for (int j = i; j <= last_student; j++)
+			{
+				if (students[i].get_middle_mark(number_of_session) < students[j].get_middle_mark(number_of_session))
+				{
+					buff_id = students[i].get_id();
+					buff = students[i];
+					students[i] = students[j];
+					students[i].set_id(buff_id);
+					buff_id = students[j].get_id();
+					students[j] = buff;
+					students[j].set_id(buff_id);
+				}
+			}
+		}
+	}
+
+	void find_student1()
+	{
+		bool is_found = false;
+		cout << "\nВведите ФИО студента, информацию о котором вы хотите получить: ";
+		cin.ignore(32767, '\n');
+		string full_name;
+		getline(cin, full_name);
+		for (int i = 0; i <= last_student; i++)
+		{
+			if (students[i].full_name() == full_name)
+			{
+				students[i].show_all();
+				is_found = true;
+			}
+			}
+		if (!is_found)
+		{
+			cout << "\nТакого студента в базе данных нет";
+		}
+		
+	}
 
 	
 	int show_menu()
