@@ -1,5 +1,6 @@
 ﻿#include <string>
 #include <stdio.h>
+#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -9,6 +10,7 @@
 #include <clocale>
 #define _CRT_SECURE_NO_WARNINGS
 using namespace std;
+const string path = "studentsdb.txt";
 #define LINE_LENGTH 140;
 #define head1 "|              Фамилия              |                Имя                |             Отчество              | Дата рождения |  Пол  |\n"
 #define head2 "|           Год поступления         |             Факультет             |             Кафедра               |      Номер зачетной книжки         |\n"
@@ -17,15 +19,16 @@ const int  DATE_SIZE =  15;
 const int SEX_SIZE =  7;
 const int NUMBER_OF_SUBJECTS = 9;
 const int NUMBER_OF_SESSIONS = 10;
-int id = -1;
+int id = 0;
 int last_student = 0;
-const int NUMBER_OF_STUDENTS = 10;
+const int NUMBER_OF_STUDENTS = 100;
 #define line cout << " --------------------------------------------------------------------------------------------------------------------------------------------\n"
 struct sub
 {
 	string name = "unknown"; //математика
 	int mark = 0; //пять
 };
+
 
 class input_output
 {
@@ -201,6 +204,7 @@ protected:
 	sub exams[NUMBER_OF_SESSIONS][NUMBER_OF_SUBJECTS];
 	double middle_mark[NUMBER_OF_SESSIONS];
 
+
 public:
 	int get_mark(int number_of_session, string subject)
 	{
@@ -313,13 +317,14 @@ struct FIO
 struct date
 {
 	int* day = NULL; //25
+
 	int* month = NULL; //07
 	int* year = NULL; //2002
 };
 class student: public input_output
 {
 
-	private:
+	public:
 		enum { NAME_SIZE = 30, FACULTY_SIZE = 100, KAFEDRA_SIZE = 100, GROUP_SIZE = 100, RECORD_GROUP_SIZE = 50};
 		FIO fio; //Чотчаев, Рашид, Хутович
 		date bday; //25 июля 2002 года
@@ -333,6 +338,7 @@ class student: public input_output
 		int student_number;
 		double middle_mark[NUMBER_OF_SESSIONS];
 	public:
+		
 		student() //конструктор инициализирует поля класса различными данными
 		{
 			bday.day = new int;
@@ -352,14 +358,38 @@ class student: public input_output
 		}
 		~student() //особождает все поля класса
 		{
-			delete(bday.day);
-			delete(bday.month);
-			delete(bday.year);
-			delete(incoming_year);
-			delete(faculty);
-			delete(kafedra);
-			delete(group);
-			delete(record_book);
+			if (bday.day != NULL)
+			{
+				delete(bday.day);
+			}
+			if (bday.month != NULL)
+			{
+				delete(bday.month);
+			}
+			if (bday.year != NULL)
+			{
+				delete(bday.year);
+			}
+			if (incoming_year != NULL)
+			{
+				delete(incoming_year);
+			}
+			if (faculty != NULL)
+			{
+				delete(faculty);
+			}
+			if (kafedra != NULL)
+			{
+				delete(kafedra);
+			}
+			if (group != NULL)
+			{
+				delete(group);
+			}
+			if (record_book != NULL)
+			{
+				delete(record_book);
+			}
 		}
 		void set_all()
 		{
@@ -375,6 +405,38 @@ class student: public input_output
 			set_record_book();
 			set_marks();
 			sessions.set_middle_marks();
+		}
+
+		void set_all(ifstream& data_base)
+		{
+			getline(data_base, fio.name);
+			getline(data_base, fio.second_name);
+			getline(data_base, fio.middle_name);
+			data_base >> *bday.day;
+			data_base >> *bday.month;
+			data_base >> *bday.year;
+			data_base >> *incoming_year;
+			data_base >> faculty;
+			data_base >> kafedra;
+			data_base >> group;
+			data_base >> record_book;
+			do
+			{
+				string subject;
+				getline(data_base, subject);
+				int mark;
+				int number_of_session;
+				if (subject == "---------------------------");
+				{
+					break;
+				}
+				data_base >> mark >> number_of_session;
+				
+				sessions.set_subject(number_of_session, subject);
+				sessions.set_mark(mark, number_of_session, subject);
+			} 			
+			while (true);
+
 		}
 
 		void set_id(int student_num)
@@ -422,7 +484,7 @@ class student: public input_output
 				cin >> number_of_sessions;
 				if (is_int_string(number_of_sessions))
 				{
-					number_of_sessions2 = string_to_int(number_of_sessions);
+					number_of_sessions2 = atoi(number_of_sessions.c_str());
 					if (number_of_sessions2 <= NUMBER_OF_SESSIONS)
 					{
 						break;
@@ -495,11 +557,10 @@ class student: public input_output
 		void show_all()
 		{
 			cout << "Студент: " << student_number << endl;
-			cout << head1 << endl;
+			cout << head1;
 			cout << "|" << setw(BLOCK_SIZE) << left << fio.second_name <<"|" <<setw(BLOCK_SIZE) << left << fio.name << "|" << setw(BLOCK_SIZE) << left << fio.middle_name << "|" << *bday.day << "." << *bday.month << "." << *bday.year << "       |" << *sex <<"    |" << endl;
 			line;
-			cout << head2 << endl;
-			line;
+			cout << head2;
 			cout <<"|" <<  setw(BLOCK_SIZE) << left << *incoming_year << "|" << setw(BLOCK_SIZE) << left << faculty << "|" << setw(BLOCK_SIZE) << left << kafedra << "|" << setw(BLOCK_SIZE) << left << record_book << endl;
 			line;
 			sessions.show_all();
@@ -524,6 +585,12 @@ class student: public input_output
 				 }
 			 }
 		}
+
+		 void set_name(string name)
+		 {
+			 fio.name = name;
+		 }
+
 		 void set_second_name()
 		 {
 			 
@@ -541,6 +608,11 @@ class student: public input_output
 					 cin_clear();
 				 }
 			 }
+		 }
+
+		 void set_second_name(string second_name)
+		 {
+			 fio.second_name = second_name;
 		 }
 		 void set_middle_name()
 		 {
@@ -560,10 +632,19 @@ class student: public input_output
 				 }
 			 }
 		 }
+
+		 void set_middle_name(string middle_name)
+		 {
+			 fio.middle_name = middle_name;
+		 }
 		 void set_incoming_year()
 		 {
 			 *incoming_year = protection_incoming_year();
 			 cin_clear();
+		 }
+		 void set_incoming_year(int in_year)
+		 {
+			 *incoming_year = in_year;
 		 }
 		 void set_bday()
 		 {
@@ -602,6 +683,13 @@ class student: public input_output
 			 }
 		 }
 
+		 void set_bday(int day, int month, int year)
+		 {
+			 *bday.day = day;
+			 *bday.month = month;
+			 *bday.year = year;
+		 }
+
 		 void set_record_book()
 		 {
 			 string rec_book;
@@ -628,10 +716,25 @@ class student: public input_output
 
 			 }
 		 }
+
+		 void set_record_book(string rbook)
+		 {
+			 int len = rbook.length();
+			 for (int i = 0; i < len; i++)
+			 {
+				 *(record_book + i) = rbook[i];
+			 }
+			 *(record_book + rbook.length()) = '\0';
+		 }
 		 
 		 void set_sex()
 		 {
 			 *sex = protection_sex();
+		 }
+
+		 void set_sex(char sex1)
+		 {
+			 *sex = sex1;
 		 }
 
 		 void set_faculty()
@@ -659,11 +762,30 @@ class student: public input_output
 				 }
 			 }
 		 }
+		 void set_faculty(string fc)
+		 {
+			 int len = fc.length();
+			 for (int i = 0; i < len; i++)
+			 {
+				 faculty[i] = fc[i];
+			 }
+			 faculty[len] = '\0';
+		 }
 		 void set_group()
 		 {
 			 cout << "\nВведите название группы: ";
 			 cin >> group;
 			 cin_clear();
+		 }
+
+		 void set_group(string gr)
+		 {
+			 int len = gr.length();
+			 for (int i = 0; i < len; i++)
+			 {
+				 group[i] = gr[i];
+			 }
+			 gr[len] = '\0';
 		 }
 
 		 void set_kafedra()
@@ -673,17 +795,67 @@ class student: public input_output
 			cin_clear();
 		 }
 
+		 void set_kafedra(string kaf)
+		 {
+			 int len = kaf.length();
+			 for (int i = 0; i < len; i++)
+			 {
+				 kafedra[i] = kaf[i];
+			 }
+			 kafedra[len] = '\0';
+		 }
+
 		 int get_id()
 		 {
 			 return student_number;
 		 }
 
-		 //все гэттеры
+		 student& operator= (const student &one)
+		 {
+
+			 fio.name = one.fio.name;
+			 fio.middle_name = one.fio.middle_name;
+			 fio.second_name = one.fio.second_name;
+			 *bday.day = *one.bday.day;
+			 *bday.month = *one.bday.month;
+			 *bday.year = *one.bday.year;
+			 strcpy(one.faculty, faculty);
+			 
+			 strcpy(one.group, group);
+			 
+			 *incoming_year = *one.incoming_year;
+			 strcpy(one.kafedra, kafedra);
+			 
+			 strcpy(one.record_book, record_book);
+			 
+
+			 sessions = one.sessions;
+
+			 *sex = *one.sex;
+			 return *this;
+		 }
+
+		 void copy_info(student* source)
+		 {
+			 fio.name = source->fio.name;
+			 fio.second_name = source->fio.second_name;
+			 fio.middle_name = source->fio.middle_name;
+			 *bday.day = *source->bday.day;
+			 *bday.month = *source->bday.month;
+			 *bday.year = *source->bday.year;
+			 *incoming_year = *source->incoming_year;
+			 strcpy(faculty, source->faculty);
+			 strcpy(group, source->group);
+			 strcpy(kafedra, source->kafedra);
+			 strcpy(record_book, source->record_book);
+			 *sex = *source->sex;
+			 sessions = source->sessions;
+		 }
 };
 
+//student a = student b
 
-
-class menu: public student
+class menu: public input_output
 {
 private:
 	string add_student = "\n[1] - Добавить студента: ";
@@ -693,10 +865,83 @@ private:
 	string sort = "\n[5] - Сортировка: ";
 	string exit = "\n[6] - Выйти из программы: ";
 	student students[NUMBER_OF_STUDENTS];
+
 	int choose = 0;
 	bool idk = true;
 	string fio;
 public:
+	menu()
+	{
+		ifstream file(path);
+		FIO fio;
+		int day;
+		int month;
+		int year;
+		int incoming_year;
+		string faculty;
+		string kafedra;
+		string group;
+		string record_book;
+		string subject;
+		int mark;
+		int number_of_session;
+		while (!file.eof())
+		{
+			getline(file, fio.name, '\n');
+			if (fio.name == "N")
+			{
+				break;
+			}
+			getline(file, fio.second_name, '\n');
+			getline(file, fio.middle_name, '\n');
+			file >> day;
+			
+			file >> month;
+			
+			file >> year;
+			
+			file >> incoming_year;
+			file.ignore(1, '\n');
+			getline(file, faculty, '\n');
+			
+			getline(file, kafedra, '\n');
+			
+			getline(file, group, '\n');
+			
+			getline(file, record_book, '\n');
+			
+			students[last_student].set_name(fio.name);
+			students[last_student].set_second_name(fio.second_name);
+			students[last_student].set_middle_name(fio.middle_name);
+			students[last_student].set_bday(day, month, year);
+			students[last_student].set_faculty(faculty);
+			students[last_student].set_kafedra(kafedra);
+			students[last_student].set_group(group);
+			students[last_student].set_incoming_year(incoming_year);
+			students[last_student].set_record_book(record_book);
+
+			while (true)
+			{
+				string subject;
+				getline(file, subject, '\n');
+				if (subject == "N")
+				{
+					break;
+				}
+				int mark, number_of_session;
+				file >> mark >> number_of_session;
+				file.ignore(1, '\n');
+				students[last_student].sessions.set_subject(number_of_session, subject);
+				students[last_student].sessions.set_mark(mark, number_of_session, subject);
+			}
+			last_student++;
+		}
+	}
+	~menu()
+	{
+		
+		
+	}
 	void main_menu()
 	{
 		while (idk)
@@ -736,18 +981,18 @@ public:
 	{
 		int buff_id;
 		student buff;
-		for (int i = 0; i < last_student; i++)
+		for (int i = 0; i < last_student-1; i++)
 		{
-			for (int j = i; j <= last_student; j++)
+			for (int j = i; j < last_student; j++)
 			{
 				if (students[i].get_middle_mark(number_of_session) < students[j].get_middle_mark(number_of_session))
 				{
 					buff_id = students[i].get_id();
-					buff = students[i];
-					students[i] = students[j];
+					buff.copy_info(&students[i]);
+					students[i].copy_info(&students[j]);
 					students[i].set_id(buff_id);
 					buff_id = students[j].get_id();
-					students[j] = buff;
+					students[j].copy_info(&buff);
 					students[j].set_id(buff_id);
 				}
 			}
@@ -830,7 +1075,6 @@ public:
 						students[i].delete_student();
 						tmp = 1;
 						break;
-
 					}
 					else
 					{
@@ -848,22 +1092,18 @@ public:
 			{
 				cout << "\nДанного студента нет в базе данных";
 			}
-		}
-		
+		}		
 	}
-
-	
-	
-	
 };
+
+
 
 int main()
 {
 	SetConsoleCP(1251); //дичь, чтобы буквы адекватно выводились
 	SetConsoleOutputCP(1251);
 	setlocale(LC_ALL, "Rus");
-
-	menu m;
-	m.main_menu();
+	menu m1;
+	m1.main_menu();
 
 }

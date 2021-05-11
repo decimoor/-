@@ -1,0 +1,37 @@
+Rashid
+Chotchaev
+Khutovich
+25
+07
+2002
+2020
+KBSP
+KB1
+BBBO0520
+123123
+Math
+5 1
+Phys
+5 1
+Linear Algebra
+5 1
+N
+Asker
+Kochkarov
+Hz
+25
+07
+2002
+2020
+KBSP
+KB1
+BBBO0520
+123123
+Phys
+3 1
+Info
+3 1
+Chemistry
+5 2
+N
+N
