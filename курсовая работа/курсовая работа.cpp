@@ -206,6 +206,17 @@ protected:
 
 
 public:
+	friend class menu;
+	void clear_info()
+	{
+		for (int i = 0; exams[i][0].name != "unknown"; i++)
+		{
+			for (int j = 0; exams[i][j].name != "unknown"; j++)
+			{
+				exams[i][j].name = "unknown";
+			}
+		}
+	}
 	int get_mark(int number_of_session, string subject)
 	{
 		for (int i = 0; i < NUMBER_OF_SUBJECTS; i++)
@@ -390,6 +401,10 @@ class student: public input_output
 			{
 				delete(record_book);
 			}
+		}
+		void clear_sessions()
+		{
+			sessions.clear_info();
 		}
 		void set_all()
 		{
@@ -851,11 +866,59 @@ class student: public input_output
 			 *sex = *source->sex;
 			 sessions = source->sessions;
 		 }
+		 void operator[](const int index) //перегрузка операция доступа по индексу
+		 {
+			 ifstream file(path); //открываем базу данных
+			 string buf;
+			 for (int i = 0; i < index; i++) //пропускаем n-1 студентов
+			 {
+				 getline(file, buf, 'N'); //считывает все до буквы N (конец информации об одном студенте)
+				 file.ignore(1, 'N');
+			 }
+			 //доходим до студента, информация о котором нам нужна
+			 getline(file, fio.name, '\n'); //считываем имя
+			 getline(file, fio.second_name, '\n'); //фамилия
+			 getline(file, fio.middle_name, '\n'); //отчество
+			 file >> *sex; //считываем пол
+			 file >> *bday.day; //день рождения
+			 file >> *bday.month; //месяц рождения
+			 file >> *bday.year; //год рождения
+			 file >> *incoming_year; //год поступления
+			 string fc;
+			 file.ignore(1, '\n');
+			 getline(file, fc, '\n');
+			 set_faculty(fc);
+			 string kf;
+			 getline(file, kf, '\n');
+			 set_kafedra(kf);
+			 string gr;
+			 getline(file, gr, '\n');
+			 set_group(gr);
+			 string rb;
+			 getline(file, rb, '\n');
+			 set_record_book(rb);
+			 sessions.clear_info();
+			 while (true) //считывание данных из файла
+			 {
+				 string subject;
+				 getline(file, subject, '\n');
+				 if (subject == "N")
+				 {
+					 break;
+				 }
+				 int mark, number_of_session;
+				 file >> mark >> number_of_session;
+				 sessions.set_subject(number_of_session, subject);
+				 sessions.set_mark(mark, number_of_session, subject);
+				 file.ignore(1, '\n');
+			 }
+		 }
+
 };
 
 //student a = student b
 
-class menu: public input_output
+class menu : public input_output
 {
 private:
 	string add_student = "\n[1] - Добавить студента: ";
@@ -864,7 +927,7 @@ private:
 	string find_student = "\n[4] - Найти студента по ФИО: ";
 	string sort = "\n[5] - Сортировка: ";
 	string exit = "\n[6] - Выйти из программы: ";
-	student students[NUMBER_OF_STUDENTS];
+	student students;
 
 	int choose = 0;
 	bool idk = true;
@@ -873,75 +936,55 @@ public:
 	menu()
 	{
 		ifstream file(path);
-		FIO fio;
-		int day;
-		int month;
-		int year;
-		int incoming_year;
-		string faculty;
-		string kafedra;
-		string group;
-		string record_book;
-		string subject;
-		int mark;
-		int number_of_session;
 		while (!file.eof())
 		{
-			getline(file, fio.name, '\n');
-			if (fio.name == "N")
+			string line1;
+			getline(file, line1, '\n');
+			if (line1 == "N")
+			{
+				last_student++;
+			}
+			else if(line1 == "&")
 			{
 				break;
 			}
-			getline(file, fio.second_name, '\n');
-			getline(file, fio.middle_name, '\n');
-			file >> day;
-			
-			file >> month;
-			
-			file >> year;
-			
-			file >> incoming_year;
-			file.ignore(1, '\n');
-			getline(file, faculty, '\n');
-			
-			getline(file, kafedra, '\n');
-			
-			getline(file, group, '\n');
-			
-			getline(file, record_book, '\n');
-			
-			students[last_student].set_name(fio.name);
-			students[last_student].set_second_name(fio.second_name);
-			students[last_student].set_middle_name(fio.middle_name);
-			students[last_student].set_bday(day, month, year);
-			students[last_student].set_faculty(faculty);
-			students[last_student].set_kafedra(kafedra);
-			students[last_student].set_group(group);
-			students[last_student].set_incoming_year(incoming_year);
-			students[last_student].set_record_book(record_book);
-
-			while (true)
-			{
-				string subject;
-				getline(file, subject, '\n');
-				if (subject == "N")
-				{
-					break;
-				}
-				int mark, number_of_session;
-				file >> mark >> number_of_session;
-				file.ignore(1, '\n');
-				students[last_student].sessions.set_subject(number_of_session, subject);
-				students[last_student].sessions.set_mark(mark, number_of_session, subject);
-			}
-			last_student++;
 		}
+		cout << last_student;
 	}
-	~menu()
+	/*~menu()
 	{
-		
-		
-	}
+		ofstream outfile(path);
+		for (int i = 0; i < last_student; i++)
+		{
+			if (i == last_student - 1)
+			{
+				outfile << "N\n";
+			}
+			outfile << students[i].fio.name << '\n';
+			outfile << students[i].fio.second_name << '\n';
+			outfile << students[i].fio.middle_name << '\n';
+			outfile << *students[i].bday.day << '\n';
+			outfile << *students[i].bday.month << '\n';
+			outfile << *students[i].bday.year << '\n';
+			outfile << *students[i].incoming_year << '\n';
+			outfile << students[i].faculty << '\n';
+			outfile << students[i].kafedra << '\n';
+			outfile << students[i].group << '\n';
+			outfile << students[i].record_book << '\n';
+			for (int j = 0; students[i].sessions.exams[j][0].name != "unknown"; j++)
+			{
+				for (int k = 0; students[i].sessions.exams[j][k].name != "unknown"; k++)
+				{
+					outfile << students[i].sessions.exams[j][k].name << '\n';
+					outfile << students[i].sessions.exams[j][k].mark << " " << j + 1;
+				}
+			}
+			outfile << '\n';
+
+
+		}
+
+	}*/
 	void main_menu()
 	{
 		while (idk)
@@ -950,12 +993,14 @@ public:
 			switch (choose)
 			{
 				case 1:
-					students[last_student++].set_all();
+					add_student_to_db();
 					break;
 				case 2:
 					for (int i = 0; i < last_student; i++)
 					{
-						students[i].show_all();
+						students[i];
+						students.set_id(i + 1);
+						students.show_all();
 					}
 					break;
 				case 3:
@@ -979,24 +1024,47 @@ public:
 
 	void sort1(int number_of_session)
 	{
-		int buff_id;
-		student buff;
-		for (int i = 0; i < last_student-1; i++)
+		ofstream("sorted.txt");
+		
+	}
+
+	void add_student_to_db()
+	{
+		ifstream file(path);
+		string everything;
+		getline(file, everything, '&');
+		file.close();
+		ofstream outfile(path);
+		outfile << everything;
+		students.clear_sessions();
+		students.set_all();
+		outfile << students.fio.name << '\n';
+		outfile << students.fio.second_name << '\n' ;
+		outfile << students.fio.middle_name << '\n' ;
+		outfile << *students.sex << '\n' ;
+		outfile << *students.bday.day << '\n' ;
+		outfile << *students.bday.month << '\n' ;
+		outfile << *students.bday.year << '\n' ;
+		outfile << *students.incoming_year << '\n' ;
+		outfile << students.faculty << '\n' ;
+		outfile << students.kafedra << '\n' ;
+		outfile << students.group << '\n' ;
+		outfile << students.record_book << '\n' ;
+		for (int i = 0; students.sessions.exams[i][0].name != "unknown"; i++)
 		{
-			for (int j = i; j < last_student; j++)
+			for (int j = 0; students.sessions.exams[i][j].name != "unknown"; j++)
 			{
-				if (students[i].get_middle_mark(number_of_session) < students[j].get_middle_mark(number_of_session))
-				{
-					buff_id = students[i].get_id();
-					buff.copy_info(&students[i]);
-					students[i].copy_info(&students[j]);
-					students[i].set_id(buff_id);
-					buff_id = students[j].get_id();
-					students[j].copy_info(&buff);
-					students[j].set_id(buff_id);
-				}
+				outfile << students.sessions.exams[i][j].name << '\n';
+				outfile << students.sessions.exams[i][j].mark << " " << i + 1;
+				outfile << '\n';
 			}
 		}
+		outfile << 'N' << '\n';
+		outfile << '&';
+		last_student++;
+
+		
+
 	}
 
 	void find_student1()
@@ -1006,11 +1074,12 @@ public:
 		cin.ignore(32767, '\n');
 		string full_name;
 		getline(cin, full_name);
-		for (int i = 0; i <= last_student; i++)
+		for (int i = 0; i < last_student; i++)
 		{
-			if (students[i].full_name() == full_name)
+			students[i];
+			if (students.full_name() == full_name)
 			{
-				students[i].show_all();
+				students.show_all();
 				is_found = true;
 			}
 			}
@@ -1056,7 +1125,7 @@ public:
 	}
 	void delete_student1()
 	{
-		int tmp = 0;
+		/*int tmp = 0;
 		if (last_student == 0)
 		{
 			cout << "\nВ базе данных нет ни одного студента";
@@ -1066,13 +1135,14 @@ public:
 			cout << "\nВведите Ф.И.О студента, которого следует удалить из базы данных: ";
 			cin.ignore(32767, '\n');
 			getline(cin, fio);
-			for (int i = 0; i <= last_student; i++)
+			for (int i = 0; i < last_student; i++)
 			{
-				if (fio == students[i].full_name())
+				students[i];
+				if (fio == students.full_name())
 				{
 					if (i == last_student)
 					{
-						students[i].delete_student();
+						students.delete_student();
 						tmp = 1;
 						break;
 					}
@@ -1092,7 +1162,7 @@ public:
 			{
 				cout << "\nДанного студента нет в базе данных";
 			}
-		}		
+		}*/	
 	}
 };
 
@@ -1103,7 +1173,9 @@ int main()
 	SetConsoleCP(1251); //дичь, чтобы буквы адекватно выводились
 	SetConsoleOutputCP(1251);
 	setlocale(LC_ALL, "Rus");
-	menu m1;
-	m1.main_menu();
+	setlocale(0, "Rus");
+	student one;
+	menu m;
+	m.main_menu();
 
 }

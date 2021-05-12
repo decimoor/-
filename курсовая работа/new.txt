@@ -1,0 +1,57 @@
+Rashid
+Chotchaev
+Khutovich
+M
+25
+07
+2002
+2020
+KBSP
+KB1
+BBBO0520
+123123
+Math
+3 1
+Linear Algebra
+3 1
+Phys
+5 1
+N
+Aznaur
+Bidzhiev
+Soltanovich
+M
+13
+08
+2002
+2020
+KBSP
+KB1
+BBBO0521
+123123
+Math
+5 1
+Linear Algebra
+5 1
+Phys
+5 1
+N
+Muslima
+Khubieva
+Dahirovna
+F
+27
+10
+2002
+2020
+KBSP
+KB1
+BBBO0520
+123123
+Math
+5 1
+Linear Algebra
+5 1
+Phys
+4 1
+N
