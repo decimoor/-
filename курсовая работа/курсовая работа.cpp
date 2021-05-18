@@ -22,27 +22,22 @@ const int NUMBER_OF_SESSIONS = 10;
 int id = 0;
 int last_student = 0;
 const int NUMBER_OF_STUDENTS = 100;
+string students_record_book[NUMBER_OF_STUDENTS];
 #define line cout << " --------------------------------------------------------------------------------------------------------------------------------------------\n"
 struct sub
 {
 	string name = "unknown"; //математика
 	int mark = 0; //пять
 };
-
-
 class input_output
 {
 public:
-	void show(char* str) { cout << str; } // вывод строки по ссылке на первый элемент
-	void show(int number) { cout << number; } // вывод числа
-	void show(string str) { cout << str;  } // вывод строки типа string
+	
 	void cin_clear() //функция очищает поток ввода от флага ошибок
 	{
 		cin.seekg(0, ios::end); //переводит указатель в конец файла
 		cin.clear(); //очищает сам поток от флагов ошибок
 	}
-	
-
 	//далее идут методы, которые проверяют правильность введенных данных
 
 	bool check_date(int day, int month, int year)
@@ -73,21 +68,21 @@ public:
 						if (day >= 1 and day <= 30) { return true; }
 						break;
 					default:
-						show("ОШИБКА: дата введена неверно\n");
+						cout << "ОШИБКА: дата введена неверно\n";
 						break;
 					}
 				}
 				else
 				{
-					show("ОШИБКА: Месяц должен быть от 1 до 12\n");
+					cout << "ОШИБКА: Месяц должен быть от 1 до 12\n";
 				}
 			}
 			else
 			{
-				show("ОШИБКА: Год должен быть от 1900 до 2020\n");
+				cout << "ОШИБКА: Год должен быть от 1900 до 2020\n";
 			}
 		}
-		show("Неверная дата\n");
+		cout << "Неверная дата\n";
 		return false;
 	}
 
@@ -97,7 +92,7 @@ public:
 		int number = 0;
 		while (true)
 		{
-			show("Введите год постулпения: ");
+			cout << "Введите год постулпения: ";
 			cin >> year;
 			if (isdigit(year[0]) and isdigit(year[1]) and isdigit(year[2]) and isdigit(year[3]) and year.length() == 4)
 			{
@@ -106,7 +101,7 @@ public:
 				{
 					return number;
 				}
-				show("Год введен неправильно: год должен быть больше 1900 и меньше 2020\n");
+				cout << "Год введен неправильно: год должен быть больше 1900 и меньше 2020\n";
 				continue;
 			}
 			cout << "\nГод - число целого типа";
@@ -187,9 +182,6 @@ public:
 		}
 		return number1;
 	}
-
-
-	
 };
 
 class session
@@ -244,22 +236,6 @@ public:
 	{
 		return middle_mark[number_of_session];
 	}
-	double set_middle_mark(int number_of_session)
-	{
-		int i;
-		int total_sum = 0;
-
-		if (exams[number_of_session][0].name == "unknown")
-		{
-			return 0;
-		}
-		for (i = 0; exams[number_of_session][i].name != "unknown"; i++)
-		{
-			total_sum += exams[number_of_session][i].mark;
-		}
-		return total_sum / (i+1);
-	}
-
 	void set_mark(int mark, int number_of_session, string subject)
 	{
 		for (int i = 0; i < NUMBER_OF_SUBJECTS; i++)
@@ -268,7 +244,6 @@ public:
 			{
 				exams[number_of_session - 1][i].mark = mark;
 			}
-
 		}
 	}
 
@@ -283,10 +258,7 @@ public:
 				break;
 			}
 		}
-
-
 	}
-
 	void show_all()
 	{
 		for (int i = 0; exams[i][0].name != "unknown"; i++)
@@ -303,13 +275,8 @@ public:
 			}
 			cout << "|" <<  endl;
 			line;
-			cout << "\nСредний балл: " << middle_mark[0];
 		}
-
-
 	}
-
-	//конструктор инициализирует поле name unknown
 };
 
 
@@ -324,7 +291,6 @@ struct FIO
 struct date
 {
 	int* day = NULL; //25
-
 	int* month = NULL; //07
 	int* year = NULL; //2002
 };
@@ -387,6 +353,13 @@ class student: public input_output
 		{
 			
 			return record_book;
+		}
+
+		string get_record_book_s()
+		{
+			string rb = string(record_book);
+			return record_book;
+			
 		}
 		~student() //особождает все поля класса
 		{
@@ -698,10 +671,25 @@ class student: public input_output
 		 {
 			 string rec_book;
 			 int ten;
+			 bool tmp = true;
 			 while (true)
 			 {
 				 cout << "\nВведите номер зачетное книжки студента: ";
 				 cin >> rec_book;
+				 for (int i = 0; i < last_student; i++)
+				 {
+					 if (rec_book == students_record_book[i])
+					 {
+						 cout << "\nТакой номер зачетной книжки уже существует";
+						 tmp = false;
+						 break;
+					 }
+					 tmp = true;
+				 }
+				 if (!tmp)
+				 {
+					 continue;
+				 }
 				 ten = pow(10, rec_book.length() - 1);
 				 if (is_int_string(rec_book))
 				 {
@@ -887,7 +875,12 @@ public:
 				break;
 			}
 		}
-		cout << last_student;
+		file.close();
+		for (int i = 0; i < last_student; i++)
+		{
+			students[i];
+			students_record_book[i] = students.get_record_book_s();
+		}
 	}
 
 	void main_menu()
@@ -1168,6 +1161,7 @@ public:
 			cout << "\n[5] - Сортировка: ";
 			cout << "\n[6] - Изменить информацию о студенте: ";
 			cout << "\n[7] - Выйти из программы: ";
+			cout << "\n>>>>>>>>> ";
 			cin >> ch;
 			cin.ignore(INT_MAX, '\n');
 			if (is_int_string(ch))
@@ -1258,9 +1252,5 @@ int main()
 	menu m;
 	m.main_menu();
 	return 1;
-
-
-	
-
 
 }
