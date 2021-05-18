@@ -23,7 +23,7 @@ int id = 0;
 int last_student = 0;
 const int NUMBER_OF_STUDENTS = 100;
 string students_record_book[NUMBER_OF_STUDENTS];
-#define line cout << " --------------------------------------------------------------------------------------------------------------------------------------------\n"
+#define line cout << "---------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
 struct sub
 {
 	string name = "unknown"; //математика
@@ -459,6 +459,7 @@ class student: public input_output
 			{
 				cout << "\nВведите количество сессий, которые были у студента: ";
 				cin >> number_of_sessions;
+				cin.ignore(INT_MAX, '\n');
 				if (is_int_string(number_of_sessions))
 				{
 					number_of_sessions2 = atoi(number_of_sessions.c_str());
@@ -484,7 +485,6 @@ class student: public input_output
 				for (j = 0; j < NUMBER_OF_SUBJECTS; j++)
 				{
 					cout << "\nВведите название предмета, если ввод закончен напишите N: ";
-					cin.ignore(32767, '\n');
 					getline(cin, subject);
 					if (subject == "N")
 					{
@@ -503,6 +503,7 @@ class student: public input_output
 						{
 							cout << "\nВведите оценку по этому предмету: ";
 							cin >> mark;
+							cin.ignore(INT_MAX, '\n');
 							
 							if (is_int_string(mark))
 							{
@@ -535,12 +536,13 @@ class student: public input_output
 		{
 			cout << "Студент: " << student_number << endl;
 			cout << head1;
-			cout << "|" << setw(BLOCK_SIZE) << left << fio.second_name <<"|" <<setw(BLOCK_SIZE) << left << fio.name << "|" << setw(BLOCK_SIZE) << left << fio.middle_name << "|" << *bday.day << "." << *bday.month << "." << *bday.year << "       |" << *sex <<"    |" << endl;
+			cout << "|" << setw(BLOCK_SIZE) << left << fio.second_name <<"|" <<setw(BLOCK_SIZE) << left << fio.name << "|" << setw(BLOCK_SIZE) << left << fio.middle_name << "|" << *bday.day << "." << *bday.month << "." << *bday.year << "      |" << *sex <<"      |" << endl;
 			line;
 			cout << head2;
 			cout <<"|" <<  setw(BLOCK_SIZE) << left << *incoming_year << "|" << setw(BLOCK_SIZE) << left << faculty << "|" << setw(BLOCK_SIZE) << left << kafedra << "|" << setw(BLOCK_SIZE) << left << group << setw(BLOCK_SIZE) << left << record_book << endl;
 			line;
 			sessions.show_all();
+			cout << endl;
 		}
 
 		//все сэттеры
@@ -849,8 +851,6 @@ class student: public input_output
 
 };
 
-//student a = student b
-
 class menu : public input_output
 {
 private:
@@ -933,7 +933,6 @@ public:
 	int change_info(char rb[])
 	{
 		ifstream file(path);
-
 		bool idk = true;
 		int student_number = 0;
 		string student_info;
@@ -951,9 +950,7 @@ public:
 			}
 			else
 			{
-				
-				getline(file, student_info, 'N');
-				
+				getline(file, student_info, 'N');				
 				file.ignore(1, '\n');
 				student_number++;
 			}
@@ -961,8 +958,6 @@ public:
 		file.close();
 		students[student_number];
 		delete_student(rb);
-
-
 
 		cout << "\n[1] - Изменить Имя Студента";
 		cout << "\n[2] - Изменить Фамилию Студента";
@@ -1050,8 +1045,6 @@ public:
 						{
 							cout << "\nОценка введена неверно";
 						}
-						
-
 					}
 					else
 					{
@@ -1059,7 +1052,6 @@ public:
 					}
 					add_student_to_db(path);
 					break;
-
 				}
 			}
 		}
@@ -1087,9 +1079,6 @@ public:
 			add_student_to_db(path);
 			max = 0; max_index = 0;
 		}
-
-
-
 	}
 
 	void add_student_to_db(string name)
@@ -1120,9 +1109,6 @@ public:
 		outfile << 'N' << '\n';
 		outfile << '&';
 		last_student++;
-
-
-
 	}
 
 	void find_student1()
@@ -1145,9 +1131,7 @@ public:
 		{
 			cout << "\nТакого студента в базе данных нет";
 		}
-
 	}
-
 
 	int show_menu()
 	{
@@ -1241,8 +1225,6 @@ public:
 	}
 };
 
-
-
 int main()
 {
 	SetConsoleCP(1251); //дичь, чтобы буквы адекватно выводились
@@ -1252,5 +1234,4 @@ int main()
 	menu m;
 	m.main_menu();
 	return 1;
-
 }
