@@ -226,7 +226,7 @@ public:
 
 	void set_middle_marks()
 	{
-		int total = 0;
+		double total = 0;
 		int count = 0;
 		for (int i = 0; exams[i][0].name != "unknown"; i++)
 		{
@@ -303,6 +303,7 @@ public:
 			}
 			cout << "|" <<  endl;
 			line;
+			cout << "\nСредний балл: " << middle_mark[0];
 		}
 
 
@@ -361,6 +362,10 @@ class student: public input_output
 			group = new char[GROUP_SIZE];
 			record_book = new char[RECORD_GROUP_SIZE];
 			student_number = ++id;
+			for (int i = 0; i < NUMBER_OF_SESSIONS; i++)
+			{
+				middle_mark[i] = 0;
+			}
 		}
 
 		bool subject_check(string subject)
@@ -436,38 +441,6 @@ class student: public input_output
 			set_record_book();
 			set_marks();
 			sessions.set_middle_marks();
-		}
-
-		void set_all(ifstream& data_base)
-		{
-			getline(data_base, fio.name);
-			getline(data_base, fio.second_name);
-			getline(data_base, fio.middle_name);
-			data_base >> *bday.day;
-			data_base >> *bday.month;
-			data_base >> *bday.year;
-			data_base >> *incoming_year;
-			data_base >> faculty;
-			data_base >> kafedra;
-			data_base >> group;
-			data_base >> record_book;
-			do
-			{
-				string subject;
-				getline(data_base, subject);
-				int mark;
-				int number_of_session;
-				if (subject == "---------------------------")
-				{
-					break;
-				}
-				data_base >> mark >> number_of_session;
-				
-				sessions.set_subject(number_of_session, subject);
-				sessions.set_mark(mark, number_of_session, subject);
-			} 			
-			while (true);
-
 		}
 
 		void set_id(int student_num)
@@ -836,47 +809,8 @@ class student: public input_output
 			 return student_number;
 		 }
 
-		 student& operator= (const student &one)
-		 {
-
-			 fio.name = one.fio.name;
-			 fio.middle_name = one.fio.middle_name;
-			 fio.second_name = one.fio.second_name;
-			 *bday.day = *one.bday.day;
-			 *bday.month = *one.bday.month;
-			 *bday.year = *one.bday.year;
-			 strcpy(one.faculty, faculty);
-			 
-			 strcpy(one.group, group);
-			 
-			 *incoming_year = *one.incoming_year;
-			 strcpy(one.kafedra, kafedra);
-			 
-			 strcpy(one.record_book, record_book);
-			 
-
-			 sessions = one.sessions;
-
-			 *sex = *one.sex;
-			 return *this;
-		 }
-
-		 void copy_info(student* source)
-		 {
-			 fio.name = source->fio.name;
-			 fio.second_name = source->fio.second_name;
-			 fio.middle_name = source->fio.middle_name;
-			 *bday.day = *source->bday.day;
-			 *bday.month = *source->bday.month;
-			 *bday.year = *source->bday.year;
-			 *incoming_year = *source->incoming_year;
-			 strcpy(faculty, source->faculty);
-			 strcpy(group, source->group);
-			 strcpy(kafedra, source->kafedra);
-			 strcpy(record_book, source->record_book);
-			 *sex = *source->sex;
-			 sessions = source->sessions;
-		 }
+		
+		
 		 void operator[](const int index) //перегрузка операция доступа по индексу
 		 {
 			 ifstream file(path); //открываем базу данных
@@ -888,7 +822,6 @@ class student: public input_output
 			 }
 			 //доходим до студента, информация о котором нам нужна
 			 file.getline(record_book, 100, '\n');
-			 cout << record_book << endl;
 			 getline(file, fio.name, '\n'); //считываем имя
 			 getline(file, fio.second_name, '\n'); //фамилия
 			 getline(file, fio.middle_name, '\n'); //отчество
@@ -922,6 +855,8 @@ class student: public input_output
 				 sessions.set_mark(mark, number_of_session, subject);
 				 file.ignore(1, '\n');
 			 }
+			 sessions.set_middle_marks();
+			 file.close();
 		 }
 
 };
@@ -1139,7 +1074,26 @@ public:
 	}
 	void sort1(int number_of_session)
 	{
-		
+		double max = -1;
+		int max_index = 0;
+		student s;
+		for (int i = last_student; i > 0; i--)
+		{
+			for (int j = 0; j < i; j++)
+			{
+				student s;
+				s[j];
+				if (s.get_middle_mark(number_of_session) > max)
+				{
+					max = s.get_middle_mark(number_of_session);
+					max_index = j;
+				}
+			}
+			s[max_index];
+			delete_student(s.get_record_book());
+			add_student_to_db(path);
+			max = 0; max_index = 0;
+		}
 
 
 
