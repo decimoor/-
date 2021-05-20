@@ -520,13 +520,9 @@ class student: public input_output
 		//все сэттеры
 		 void set_name()
 		{
-			 
-			 while (true)
-			 {
 				 cout << "\nВведите имя студента: ";
 				 cin >> fio.name;
 				 cin.ignore(INT_MAX, '\n');
-			 }
 		}
 
 		 void set_name(string name)
@@ -537,12 +533,9 @@ class student: public input_output
 		 void set_second_name()
 		 {
 			 
-			 while (true)
-			 {
 				 cout << "\nВведите фамилию студента: ";
 				 cin >> fio.second_name;
 				 cin.ignore(INT_MAX, '\n');
-			 }
 		 }
 
 		 void set_second_name(string second_name)
@@ -551,13 +544,9 @@ class student: public input_output
 		 }
 		 void set_middle_name()
 		 {
-			 
-			 while (true)
-			 {
 				 cout << "\nВведите отчество студента: ";
 				 cin >> fio.middle_name;
 				 cin.ignore(INT_MAX, '\n');
-			 }
 		 }
 
 		 void set_middle_name(string middle_name)
