@@ -20,8 +20,6 @@ const int SEX_SIZE =  7;
 const int NUMBER_OF_SUBJECTS = 9;
 const int NUMBER_OF_SESSIONS = 10;
 int last_student = 0;
-const int NUMBER_OF_STUDENTS = 100;
-string students_record_book[NUMBER_OF_STUDENTS];
 #define line cout << "---------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
 struct sub
 {
@@ -617,9 +615,11 @@ class student: public input_output
 				 cin >> rec_book;
 				 for (int i = 0; i < last_student; i++)
 				 {
-					 if (rec_book == students_record_book[i])
+					 student s1;
+					 s1[i];
+					 if (s1.get_record_book_s() == rec_book)
 					 {
-						 cout << "\nТакой номер зачетной книжки уже существует";
+						 cout << "\nВ базе данных присутствует студент с идентичным номером зачетной книжки";
 						 tmp = false;
 						 break;
 					 }
@@ -636,6 +636,7 @@ class student: public input_output
 					*(record_book + i) = rec_book[i];
 				}
 				*(record_book + rec_book.length()) = '\0';
+				break;
 			 }
 		 }
 
@@ -803,11 +804,6 @@ public:
 			}
 		}
 		file.close();
-		for (int i = 0; i < last_student; i++)
-		{
-			students[i];
-			students_record_book[i] = students.get_record_book_s();
-		}
 	}
 
 	void main_menu()
